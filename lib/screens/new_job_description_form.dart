@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class NewJobDescriptionForm extends StatefulWidget {
-  const NewJobDescriptionForm({Key? key}) : super(key: key);
+  const NewJobDescriptionForm({super.key});
 
   @override
   _NewJobDescriptionFormState createState() => _NewJobDescriptionFormState();

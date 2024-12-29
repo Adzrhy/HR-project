@@ -181,7 +181,7 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
                         dividerColor: Colors.grey[200],
                       ),
                       child: DataTable(
-                        headingRowColor: MaterialStateProperty.all(
+                        headingRowColor: WidgetStateProperty.all(
                           const Color(0xFF358873),
                         ),
                         dataRowHeight: 65,
