@@ -9,61 +9,110 @@ class InterviewScreen extends StatefulWidget {
 
 class _InterviewScreenState extends State<InterviewScreen> {
   String searchQuery = '';
+  String selectedFilter = 'All';
+  int currentPage = 1; // Pagination
+  final int itemsPerPage = 5;
+
   List<Map<String, dynamic>> interviews = [
     {
-      'id': '1',
-      'candidateName': 'Alice Johnson',
+      'time': '9:00 AM',
+      'applicantName': 'Alice Johnson',
       'position': 'Software Engineer',
-      'date': '09/15/2023',
-      'status': 'Scheduled',
+      'date': '01/15/23'
     },
     {
-      'id': '2',
-      'candidateName': 'Bob Smith',
+      'time': '10:30 AM',
+      'applicantName': 'Bob Smith',
       'position': 'Product Manager',
-      'date': '09/16/2023',
-      'status': 'Completed',
+      'date': '02/20/23'
     },
     {
-      'id': '3',
-      'candidateName': 'Charlie Brown',
+      'time': '11:00 AM',
+      'applicantName': 'Charlie Brown',
       'position': 'Data Analyst',
-      'date': '09/17/2023',
-      'status': 'Scheduled',
+      'date': '03/12/23'
     },
     {
-      'id': '4',
-      'candidateName': 'Diana Prince',
+      'time': '2:00 PM',
+      'applicantName': 'Diana Prince',
       'position': 'UX Designer',
-      'date': '09/18/2023',
-      'status': 'Completed',
+      'date': '04/05/23'
     },
     {
-      'id': '5',
-      'candidateName': 'Ethan Hunt',
-      'position': 'Project Coordinator',
-      'date': '09/19/2023',
-      'status': 'Scheduled',
-    },
-    {
-      'id': '6',
-      'candidateName': 'Fiona Gallagher',
+      'time': '3:30 PM',
+      'applicantName': 'Ethan Hunt',
       'position': 'Marketing Specialist',
-      'date': '09/20/2023',
-      'status': 'Completed',
+      'date': '05/22/23'
+    },
+    {
+      'time': '9:30 AM',
+      'applicantName': 'Fiona Gallagher',
+      'position': 'HR Manager',
+      'date': '06/15/23'
+    },
+    {
+      'time': '10:00 AM',
+      'applicantName': 'George Lucas',
+      'position': 'Operations Lead',
+      'date': '07/10/23'
+    },
+    {
+      'time': '1:30 PM',
+      'applicantName': 'Helen Parr',
+      'position': 'Finance Officer',
+      'date': '08/25/23'
+    },
+    {
+      'time': '3:00 PM',
+      'applicantName': 'Isaac Newton',
+      'position': 'Research Scientist',
+      'date': '09/18/23'
+    },
+    {
+      'time': '4:30 PM',
+      'applicantName': 'Jack Sparrow',
+      'position': 'Logistics Coordinator',
+      'date': '10/12/23'
     },
   ];
 
   List<Map<String, dynamic>> get filteredInterviews {
-    if (searchQuery.isEmpty) return interviews;
-    return interviews.where((interview) {
-      return interview['candidateName']
-              .toLowerCase()
-              .contains(searchQuery.toLowerCase()) ||
-          interview['position']
-              .toLowerCase()
-              .contains(searchQuery.toLowerCase());
-    }).toList();
+    List<Map<String, dynamic>> filtered = interviews;
+
+    if (searchQuery.isNotEmpty) {
+      filtered = filtered.where((interview) {
+        return interview['applicantName']
+                .toLowerCase()
+                .contains(searchQuery.toLowerCase()) ||
+            interview['position']
+                .toLowerCase()
+                .contains(searchQuery.toLowerCase());
+      }).toList();
+    }
+
+    return filtered;
+  }
+
+  List<Map<String, dynamic>> get paginatedInterviews {
+    int startIndex = (currentPage - 1) * itemsPerPage;
+    int endIndex = startIndex + itemsPerPage;
+    return filteredInterviews.sublist(
+      startIndex,
+      endIndex > filteredInterviews.length
+          ? filteredInterviews.length
+          : endIndex,
+    );
+  }
+
+  void addNewSchedule() {
+    setState(() {
+      interviews.add({
+        'time': '5:00 PM',
+        'applicantName': 'New Applicant',
+        'position': 'Intern',
+        'date': '11/20/23'
+      });
+    });
   }
 
   @override
@@ -96,6 +145,7 @@ class _InterviewScreenState extends State<InterviewScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Header
                 Container(
                   padding: const EdgeInsets.all(36),
                   decoration: BoxDecoration(
@@ -113,181 +163,198 @@ class _InterviewScreenState extends State<InterviewScreen> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      Container(
-                        width: 500,
-                        height: 45,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey[300]!),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                onChanged: (value) {
-                                  setState(() {
-                                    searchQuery = value;
-                                  });
-                                },
-                                style: const TextStyle(fontSize: 16),
-                                decoration: InputDecoration(
-                                  hintText: 'Search interviews...',
-                                  hintStyle: TextStyle(
-                                    color: Colors.grey[400],
-                                    fontSize: 16,
+                      Row(
+                        children: [
+                          DropdownButton<String>(
+                            value: selectedFilter,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedFilter = value!;
+                                currentPage = 1; // Reset to the first page
+                              });
+                            },
+                            items: ['All', 'Scheduled', 'Completed']
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                          const SizedBox(width: 20),
+                          Container(
+                            width: 500,
+                            height: 45,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey[300]!),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    onChanged: (value) {
+                                      setState(() {
+                                        searchQuery = value;
+                                        currentPage =
+                                            1; // Reset to the first page
+                                      });
+                                    },
+                                    style: const TextStyle(fontSize: 16),
+                                    decoration: InputDecoration(
+                                      hintText: 'Search schedules...',
+                                      hintStyle: TextStyle(
+                                        color: Colors.grey[400],
+                                        fontSize: 16,
+                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 0,
+                                      ),
+                                      border: InputBorder.none,
+                                    ),
                                   ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 20,
-                                    vertical: 0,
-                                  ),
-                                  border: InputBorder.none,
                                 ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 16),
-                              child: Icon(Icons.search,
-                                  color: Colors.grey[400], size: 24),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.all(36),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey[200]!),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Theme(
-                      data: Theme.of(context).copyWith(
-                        dividerColor: Colors.grey[200],
-                      ),
-                      child: DataTable(
-                        headingRowColor:
-                            WidgetStateProperty.all(const Color(0xFF358873)),
-                        dataRowHeight: 65,
-                        horizontalMargin: 50,
-                        columnSpacing: 36,
-                        columns: [
-                          DataColumn(
-                            label: Container(
-                              width: 300,
-                              alignment: Alignment.centerLeft,
-                              child: const Text(
-                                'ID',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 12),
+                                  child: Icon(Icons.search,
+                                      color: Colors.grey[400], size: 24),
                                 ),
-                              ),
+                              ],
                             ),
                           ),
-                          DataColumn(
-                            label: Container(
-                              width: 300,
-                              alignment: Alignment.centerLeft,
-                              child: const Text(
-                                'Candidate Name',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
+                          const SizedBox(width: 20),
+                          SizedBox(
+                            height: 45,
+                            width: 200,
+                            child: ElevatedButton.icon(
+                              onPressed: addNewSchedule,
+                              icon: const Icon(Icons.add, size: 20),
+                              label: const Text(
+                                'Add New Schedule',
+                                style: TextStyle(fontSize: 14),
                               ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Container(
-                              width: 300,
-                              alignment: Alignment.centerLeft,
-                              child: const Text(
-                                'Position',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF358873),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 0,
                                 ),
-                              ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Container(
-                              width: 300,
-                              alignment: Alignment.centerLeft,
-                              child: const Text(
-                                'Date',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Container(
-                              width: 300,
-                              alignment: Alignment.centerLeft,
-                              child: const Text(
-                                'Status',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
                                 ),
                               ),
                             ),
                           ),
                         ],
-                        rows: filteredInterviews.map((interview) {
-                          return DataRow(
-                            cells: [
-                              DataCell(Container(
-                                width: 100,
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  interview['id'],
-                                  style: const TextStyle(fontSize: 15),
-                                ),
-                              )),
-                              DataCell(Container(
-                                width: 220,
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  interview['candidateName'],
-                                  style: const TextStyle(fontSize: 15),
-                                ),
-                              )),
-                              DataCell(Container(
-                                width: 180,
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  interview['position'],
-                                  style: const TextStyle(fontSize: 15),
-                                ),
-                              )),
-                              DataCell(Container(
-                                width: 140,
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  interview['date'],
-                                  style: const TextStyle(fontSize: 15),
-                                ),
-                              )),
-                              DataCell(Container(
-                                width: 140,
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  interview['status'],
-                                  style: const TextStyle(fontSize: 15),
-                                ),
-                              )),
-                            ],
-                          );
-                        }).toList(),
                       ),
-                    ),
+                    ],
+                  ),
+                ),
+                // Data Table
+                Container(
+                  margin: const EdgeInsets.all(36),
+                  child: Column(
+                    children: [
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                          headingRowColor: MaterialStateProperty.all(
+                            const Color(0xFF358873),
+                          ),
+                          columns: const [
+                            DataColumn(
+                              label: SizedBox(
+                                width: 200,
+                                child: Text(
+                                  'Time',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                            DataColumn(
+                              label: SizedBox(
+                                width: 350,
+                                child: Text(
+                                  'Applicant Name',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                            DataColumn(
+                              label: SizedBox(
+                                width: 350,
+                                child: Text(
+                                  'Position',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                            DataColumn(
+                              label: SizedBox(
+                                width: 350,
+                                child: Text(
+                                  'Date',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ],
+                          rows: paginatedInterviews.map((interview) {
+                            return DataRow(
+                              cells: [
+                                DataCell(SizedBox(
+                                  width: 200,
+                                  child: Text(interview['time']),
+                                )),
+                                DataCell(SizedBox(
+                                  width: 350,
+                                  child: Text(interview['applicantName']),
+                                )),
+                                DataCell(SizedBox(
+                                  width: 350,
+                                  child: Text(interview['position']),
+                                )),
+                                DataCell(SizedBox(
+                                  width: 350,
+                                  child: Text(interview['date']),
+                                )),
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            onPressed: currentPage > 1
+                                ? () {
+                                    setState(() {
+                                      currentPage--;
+                                    });
+                                  }
+                                : null,
+                            icon: const Icon(Icons.arrow_back),
+                          ),
+                          Text(
+                              'Page $currentPage of ${(filteredInterviews.length / itemsPerPage).ceil()}'),
+                          IconButton(
+                            onPressed: currentPage <
+                                    (filteredInterviews.length / itemsPerPage)
+                                        .ceil()
+                                ? () {
+                                    setState(() {
+                                      currentPage++;
+                                    });
+                                  }
+                                : null,
+                            icon: const Icon(Icons.arrow_forward),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -297,5 +364,4 @@ class _InterviewScreenState extends State<InterviewScreen> {
       ),
     );
   }
-  // EdgeInsets.only(top: 30, bottom: 160), // Move up
 }

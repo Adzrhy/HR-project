@@ -1,47 +1,60 @@
 import 'package:flutter/material.dart';
 
-class FormsScreen extends StatelessWidget {
+class FormsScreen extends StatefulWidget {
   const FormsScreen({super.key});
 
   @override
+  State<FormsScreen> createState() => _FormsScreenState();
+}
+
+class _FormsScreenState extends State<FormsScreen> {
+  final List<Map<String, String>> forms = [
+    {
+      'formTitle': 'Curriculum Vitae',
+      'formDescription': 'Highlight your skills and work experience.',
+    },
+    {
+      'formTitle': 'Comprehensive CV',
+      'formDescription': 'Detailed CV for academic and research positions.',
+    },
+    {
+      'formTitle': 'Personal Data Sheet',
+      'formDescription':
+          'Government-format personal information and employment record.',
+    },
+    {
+      'formTitle': 'Training Certificate',
+      'formDescription':
+          'Official documentation for completed training programs.',
+    },
+    {
+      'formTitle': 'Performance Evaluation',
+      'formDescription': 'Assessment for employee performance and feedback.',
+    },
+    {
+      'formTitle': 'Leave Application',
+      'formDescription': 'Request and document employee leave of absence.',
+    },
+    {
+      'formTitle': 'Work Assignment Form',
+      'formDescription': 'Details of assigned work tasks and responsibilities.',
+    },
+    {
+      'formTitle': 'Expense Reimbursement Form',
+      'formDescription': 'Submit for reimbursement of job-related expenses.',
+    },
+  ];
+
+  String query = '';
+
+  @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> forms = [
-      {
-        'formTitle': 'Curriculum Vitae',
-        'formDescription': 'Highlight your skills and work experience.',
-      },
-      {
-        'formTitle': 'Comprehensive CV',
-        'formDescription': 'Detailed CV for academic and research positions.',
-      },
-      {
-        'formTitle': 'Personal Data Sheet',
-        'formDescription':
-            'Government-format personal information and employment record.',
-      },
-      {
-        'formTitle': 'Training Certificate',
-        'formDescription':
-            'Official documentation for completed training programs.',
-      },
-      {
-        'formTitle': 'Performance Evaluation',
-        'formDescription': 'Assessment for employee performance and feedback.',
-      },
-      {
-        'formTitle': 'Leave Application',
-        'formDescription': 'Request and document employee leave of absence.',
-      },
-      {
-        'formTitle': 'Work Assignment Form',
-        'formDescription':
-            'Details of assigned work tasks and responsibilities.',
-      },
-      {
-        'formTitle': 'Expense Reimbursement Form',
-        'formDescription': 'Submit for reimbursement of job-related expenses.',
-      },
-    ];
+    final filteredForms = forms.where((form) {
+      final formTitle = form['formTitle']?.toLowerCase() ?? '';
+      final formDescription = form['formDescription']?.toLowerCase() ?? '';
+      return formTitle.contains(query.toLowerCase()) ||
+          formDescription.contains(query.toLowerCase());
+    }).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -53,23 +66,56 @@ class FormsScreen extends StatelessWidget {
           },
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
-          child: Align(
-            alignment: Alignment.center,
-            child: Wrap(
-              spacing: 16, // Horizontal spacing between cards
-              runSpacing: 16, // Vertical spacing between cards
-              children: forms
-                  .map((form) => _buildFormCard(
-                        form: form,
-                        context: context,
-                      ))
-                  .toList(),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                SizedBox(
+                  width: 350,
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search forms...',
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        query = value;
+                      });
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 24.0),
+                child: Align(
+                  alignment: Alignment.topLeft, // Align all cards to the left
+                  child: Wrap(
+                    alignment: WrapAlignment.start, // Maintain left alignment
+                    spacing: 16, // Horizontal spacing between cards
+                    runSpacing: 16, // Vertical spacing between cards
+                    children: filteredForms
+                        .map((form) => _buildFormCard(
+                              form: form,
+                              context: context,
+                            ))
+                        .toList(),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -119,8 +165,10 @@ class FormsScreen extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),

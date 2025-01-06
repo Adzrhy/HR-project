@@ -10,36 +10,62 @@ class JobListingsScreen extends StatefulWidget {
 
 class _JobListingsScreenState extends State<JobListingsScreen> {
   String searchQuery = '';
+  String selectedFilter = 'All'; // For filtering by status
+  bool isAscending = true; // For sorting
+  int currentPage = 1; // Pagination
+  final int itemsPerPage = 5;
 
   // Sample job data
-  List<Map<String, dynamic>> jobs = [
-    {
-      'title': 'HR Manager',
-      'status': 'Pending',
-      'datePosted': 'September 30, 2024',
-    },
+  List<Map<String, dynamic>> allJobs = [
+    {'title': 'HR Manager', 'status': 'Pending', 'datePosted': '2024-09-30'},
     {
       'title': 'Assistant Professor',
       'status': 'Draft',
-      'datePosted': 'December 21, 2020',
+      'datePosted': '2020-12-21'
     },
     {
       'title': 'Academic Advisory',
       'status': 'Published',
-      'datePosted': 'January 04, 2022',
+      'datePosted': '2022-01-04'
     },
+    {'title': 'Professor', 'status': 'Closed', 'datePosted': '2024-11-10'},
+    {'title': 'Researcher', 'status': 'Published', 'datePosted': '2023-03-15'},
     {
-      'title': 'Professor',
-      'status': 'Closed',
-      'datePosted': 'November 10, 2024',
+      'title': 'Software Engineer',
+      'status': 'Draft',
+      'datePosted': '2023-06-12'
     },
+    {'title': 'Data Analyst', 'status': 'Pending', 'datePosted': '2023-08-01'},
   ];
 
   List<Map<String, dynamic>> get filteredJobs {
-    if (searchQuery.isEmpty) return jobs;
-    return jobs.where((job) {
-      return job['title'].toLowerCase().contains(searchQuery.toLowerCase());
-    }).toList();
+    List<Map<String, dynamic>> jobs = allJobs;
+
+    // Filter by status
+    if (selectedFilter != 'All') {
+      jobs = jobs.where((job) => job['status'] == selectedFilter).toList();
+    }
+
+    // Search query filter
+    if (searchQuery.isNotEmpty) {
+      jobs = jobs.where((job) {
+        return job['title'].toLowerCase().contains(searchQuery.toLowerCase());
+      }).toList();
+    }
+
+    // Sort by title
+    jobs.sort((a, b) => isAscending
+        ? a['title'].compareTo(b['title'])
+        : b['title'].compareTo(a['title']));
+
+    return jobs;
+  }
+
+  List<Map<String, dynamic>> get paginatedJobs {
+    int startIndex = (currentPage - 1) * itemsPerPage;
+    int endIndex = startIndex + itemsPerPage;
+    return filteredJobs.sublist(startIndex,
+        endIndex > filteredJobs.length ? filteredJobs.length : endIndex);
   }
 
   @override
@@ -92,6 +118,28 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
                       ),
                       Row(
                         children: [
+                          DropdownButton<String>(
+                            value: selectedFilter,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedFilter = value!;
+                                currentPage = 1; // Reset to the first page
+                              });
+                            },
+                            items: [
+                              'All',
+                              'Pending',
+                              'Draft',
+                              'Published',
+                              'Closed'
+                            ].map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                          const SizedBox(width: 20),
                           Container(
                             width: 500,
                             height: 45,
@@ -106,6 +154,8 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
                                     onChanged: (value) {
                                       setState(() {
                                         searchQuery = value;
+                                        currentPage =
+                                            1; // Reset to the first page
                                       });
                                     },
                                     style: const TextStyle(fontSize: 16),
@@ -117,7 +167,7 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
                                       ),
                                       contentPadding:
                                           const EdgeInsets.symmetric(
-                                        horizontal: 20,
+                                        horizontal: 16,
                                         vertical: 0,
                                       ),
                                       border: InputBorder.none,
@@ -125,7 +175,7 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
                                   ),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.only(right: 16),
+                                  padding: const EdgeInsets.only(right: 12),
                                   child: Icon(Icons.search,
                                       color: Colors.grey[400], size: 24),
                                 ),
@@ -170,150 +220,118 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
                 // Data Table
                 Container(
                   margin: const EdgeInsets.all(36),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey[200]!),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Theme(
-                      data: Theme.of(context).copyWith(
-                        dividerColor: Colors.grey[200],
-                      ),
-                      child: DataTable(
-                        headingRowColor: WidgetStateProperty.all(
-                          const Color(0xFF358873),
-                        ),
-                        dataRowHeight: 65,
-                        horizontalMargin: 50,
-                        columnSpacing: 36,
-                        columns: [
-                          DataColumn(
-                            label: Container(
-                              width: 480,
-                              alignment: Alignment.centerLeft,
-                              child: const Text(
-                                'Vacant Positions',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
+                  child: Column(
+                    children: [
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                          headingRowColor: WidgetStateProperty.all(
+                            const Color(0xFF358873),
                           ),
-                          DataColumn(
-                            label: Container(
-                              width: 350,
-                              alignment: Alignment.centerLeft,
-                              child: const Text(
-                                'Status',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Container(
-                              width: 350,
-                              alignment: Alignment.centerLeft,
-                              child: const Text(
-                                'Date Posted',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Container(
-                              width: 160,
-                              alignment: Alignment.center,
-                              child: const Text(
-                                'Actions',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                        rows: filteredJobs.map((job) {
-                          return DataRow(
-                            cells: [
-                              DataCell(Container(
-                                width: 300,
-                                alignment: Alignment.centerLeft,
+                          columns: const [
+                            DataColumn(
+                              label: SizedBox(
+                                width:
+                                    350, // Adjusted width for Vacant Positions
                                 child: Text(
-                                  job['title'],
-                                  style: const TextStyle(fontSize: 15),
+                                  'Vacant Positions',
+                                  style: TextStyle(color: Colors.white),
                                 ),
-                              )),
-                              DataCell(Container(
-                                width: 140,
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 14,
-                                    vertical: 8,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: _getStatusColor(job['status']),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    job['status'],
-                                    style: TextStyle(
-                                      color: _getStatusTextColor(job['status']),
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ),
-                              )),
-                              DataCell(Container(
-                                width: 200,
-                                alignment: Alignment.centerLeft,
+                              ),
+                            ),
+                            DataColumn(
+                              label: SizedBox(
+                                width: 350, // Adjusted width for Status
                                 child: Text(
-                                  job['datePosted'],
-                                  style: const TextStyle(fontSize: 15),
+                                  'Status',
+                                  style: TextStyle(color: Colors.white),
                                 ),
-                              )),
-                              DataCell(
-                                Container(
-                                  width: 160,
-                                  alignment: Alignment.center,
+                              ),
+                            ),
+                            DataColumn(
+                              label: SizedBox(
+                                width: 350, // Adjusted width for Date Posted
+                                child: Text(
+                                  'Date Posted',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                            DataColumn(
+                              label: SizedBox(
+                                width: 350, // Adjusted width for Actions
+                                child: Text(
+                                  'Actions',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ],
+                          rows: paginatedJobs.map((job) {
+                            return DataRow(
+                              cells: [
+                                DataCell(SizedBox(
+                                  width: 350,
+                                  child: Text(job['title']),
+                                )),
+                                DataCell(SizedBox(
+                                  width: 350,
+                                  child: Text(job['status']),
+                                )),
+                                DataCell(SizedBox(
+                                  width: 350,
+                                  child: Text(job['datePosted']),
+                                )),
+                                DataCell(SizedBox(
+                                  width: 350,
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       IconButton(
-                                        icon: const Icon(Icons.edit,
-                                            color: Colors.blue),
-                                        onPressed: () {
-                                          // Edit functionality
-                                          print('Edit ${job['title']} clicked');
-                                        },
+                                        icon: const Icon(Icons.edit),
+                                        onPressed: () {},
                                       ),
                                       IconButton(
-                                        icon: const Icon(Icons.delete,
-                                            color: Colors.red),
-                                        onPressed: () {
-                                          // Delete functionality
-                                          print(
-                                              'Delete ${job['title']} clicked');
-                                        },
+                                        icon: const Icon(Icons.delete),
+                                        onPressed: () {},
                                       ),
                                     ],
                                   ),
-                                ),
-                              ),
-                            ],
-                          );
-                        }).toList(),
+                                )),
+                              ],
+                            );
+                          }).toList(),
+                        ),
                       ),
-                    ),
+                      // Pagination Controls
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            onPressed: currentPage > 1
+                                ? () {
+                                    setState(() {
+                                      currentPage--;
+                                    });
+                                  }
+                                : null,
+                            icon: const Icon(Icons.arrow_back),
+                          ),
+                          Text(
+                              'Page $currentPage of ${(filteredJobs.length / itemsPerPage).ceil()}'),
+                          IconButton(
+                            onPressed: currentPage <
+                                    (filteredJobs.length / itemsPerPage).ceil()
+                                ? () {
+                                    setState(() {
+                                      currentPage++;
+                                    });
+                                  }
+                                : null,
+                            icon: const Icon(Icons.arrow_forward),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -322,35 +340,5 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
         ),
       ),
     );
-  }
-
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'Pending':
-        return const Color(0xFFFFF3E0); // Light Orange
-      case 'Draft':
-        return const Color(0xFFE3F2FD); // Light Blue
-      case 'Published':
-        return const Color(0xFFE8F5E9); // Light Green
-      case 'Closed':
-        return const Color(0xFFE3F2FD); // Light Blue
-      default:
-        return Colors.grey[300]!;
-    }
-  }
-
-  Color _getStatusTextColor(String status) {
-    switch (status) {
-      case 'Pending':
-        return Colors.orange[800]!;
-      case 'Draft':
-        return Colors.blue[700]!;
-      case 'Published':
-        return Colors.green[700]!;
-      case 'Closed':
-        return Colors.blue[700]!;
-      default:
-        return Colors.grey[600]!;
-    }
   }
 }

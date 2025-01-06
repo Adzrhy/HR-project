@@ -32,9 +32,6 @@ class MyApp extends StatelessWidget {
         '/jobs': (context) => const JobListingsScreen(),
         '/forms': (context) => const FormsScreen(),
         '/lists': (context) => const JobListScreen(),
-        // '/departments': (context) => DepartmentsScreen(),
-        // '/applicants': (context) => ApplicantsScreen(),
-        // '/pending': (context) => PendingScreen(),
       },
     );
   }

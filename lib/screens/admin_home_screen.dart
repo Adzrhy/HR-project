@@ -1,8 +1,11 @@
-import 'package:dashboard/screens/forms_screen.dart';
-import 'package:dashboard/screens/job_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'job_listings_screen.dart'; // Import the Job Listings screen
+import 'profile_admin_screen.dart';
+import 'forms_screen.dart';
+import 'job_list_screen.dart';
+import 'job_listings_screen.dart';
+import 'pending_screen.dart';
+import 'applicants_screen.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   const AdminHomeScreen({super.key});
@@ -24,21 +27,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     });
   }
 
-  void _onCardTap(String title) {
-    switch (title) {
-      case 'Forms':
-        Navigator.pushNamed(context, '');
-        break;
-      case 'Lists':
-        break;
-      default:
-        print('No action defined for $title');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final isWideScreen = screenWidth > 600;
 
     return Scaffold(
       backgroundColor: Colors.grey[200],
@@ -47,35 +39,44 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           // Sidebar
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            width: isSidebarOpen ? 250 : 0,
+            width: isSidebarOpen ? 250 : 70,
             child: Container(
               color: Colors.white,
-              child: isSidebarOpen
-                  ? Column(
+              child: Column(
+                children: [
+                  const SizedBox(height: 16),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      icon: Icon(
+                        isSidebarOpen ? Icons.close : Icons.menu,
+                      ),
+                      onPressed: () =>
+                          setState(() => isSidebarOpen = !isSidebarOpen),
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
                       children: [
-                        const SizedBox(height: 16),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () =>
-                                setState(() => isSidebarOpen = false),
-                          ),
-                        ),
                         ListTile(
                           leading: const Icon(Icons.dashboard, size: 20),
-                          title: const Text('Home',
-                              style: TextStyle(fontSize: 14)),
-                          selected: true,
-                          selectedColor: Colors.blue,
+                          title: isSidebarOpen
+                              ? const Text(
+                                  'Home',
+                                  style: TextStyle(fontSize: 14),
+                                )
+                              : null,
                           onTap: () {},
                         ),
                         ListTile(
                           leading: const Icon(Icons.work, size: 20),
-                          title: const Text('Jobs',
-                              style: TextStyle(fontSize: 14)),
+                          title: isSidebarOpen
+                              ? const Text(
+                                  'Jobs',
+                                  style: TextStyle(fontSize: 14),
+                                )
+                              : null,
                           onTap: () {
-                            // Navigate to the Job Listings screen
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -86,8 +87,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                         ),
                         ListTile(
                           leading: const Icon(Icons.list, size: 20),
-                          title: const Text('List',
-                              style: TextStyle(fontSize: 14)),
+                          title: isSidebarOpen
+                              ? const Text(
+                                  'List',
+                                  style: TextStyle(fontSize: 14),
+                                )
+                              : null,
                           onTap: () {
                             Navigator.push(
                               context,
@@ -98,8 +103,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                         ),
                         ListTile(
                           leading: const Icon(Icons.description, size: 20),
-                          title: const Text('Forms',
-                              style: TextStyle(fontSize: 14)),
+                          title: isSidebarOpen
+                              ? const Text(
+                                  'Forms',
+                                  style: TextStyle(fontSize: 14),
+                                )
+                              : null,
                           onTap: () {
                             Navigator.push(
                               context,
@@ -108,32 +117,34 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             );
                           },
                         ),
-                        const Spacer(),
-                        const Divider(height: 20),
-                        const Padding(
-                          padding: EdgeInsets.only(top: 30, bottom: 120),
-                          child: Column(
-                            children: [
-                              CircleAvatar(
-                                radius: 50,
-                                backgroundImage: AssetImage(
-                                    'assets/image.png'), // Update with your image
-                              ),
-                              SizedBox(height: 10),
-                              Text(
-                                'Admin User',
-                                style: TextStyle(fontSize: 14),
-                              ),
-                              Text(
-                                'admin@example.com',
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ],
-                          ),
-                        ),
                       ],
-                    )
-                  : null,
+                    ),
+                  ),
+                  if (isSidebarOpen) const Divider(height: 20),
+                  if (isSidebarOpen)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 30, bottom: 120),
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            radius: 50,
+                            backgroundImage: AssetImage(
+                                'assets/image.png'), // Update with your image
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            'Admin User',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          Text(
+                            'admin@example.com',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
           // Main Content
@@ -190,27 +201,52 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       ),
                       const SizedBox(height: 90),
                       // Stat Cards
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        spacing: 16,
+                        runSpacing: 16,
                         children: [
                           GestureDetector(
                             onTap: () =>
                                 Navigator.pushNamed(context, '/employees'),
-                            child: _buildStatCard(
-                                'Employees', '250', Icons.people, Colors.green),
+                            child: _buildStatCard('Employees', '250',
+                                Icons.people, Colors.green, isWideScreen),
                           ),
                           GestureDetector(
                             onTap: () =>
                                 Navigator.pushNamed(context, '/interview'),
                             child: _buildStatCard('Interviews', '150',
-                                Icons.assignment, Colors.orange),
+                                Icons.assignment, Colors.orange, isWideScreen),
                           ),
-                          _buildStatCard('Departments', '20', Icons.business,
-                              Colors.purple),
-                          _buildStatCard('Applicants', '120', Icons.person_add,
-                              Colors.red),
-                          _buildStatCard('Pending', '25', Icons.hourglass_empty,
-                              Colors.grey),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const ApplicantsScreen(),
+                                ),
+                              );
+                            },
+                            child: _buildStatCard('Applicants', '120',
+                                Icons.person_add, Colors.red, isWideScreen),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const PendingScreen(),
+                                ),
+                              );
+                            },
+                            child: _buildStatCard(
+                                'Pending',
+                                '25',
+                                Icons.hourglass_empty,
+                                Colors.grey,
+                                isWideScreen),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 26),
@@ -237,7 +273,13 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                               ListTile(
                                 title: const Text('Profile'),
                                 onTap: () {
-                                  print('Profile clicked');
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const ProfileAdminScreen(),
+                                    ),
+                                  );
                                   setState(() {
                                     isDropdownOpen = false;
                                   });
@@ -246,7 +288,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                               ListTile(
                                 title: const Text('Settings'),
                                 onTap: () {
-                                  print('Settings clicked');
                                   setState(() {
                                     isDropdownOpen = false;
                                   });
@@ -272,50 +313,47 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     );
   }
 
-  Widget _buildStatCard(
-      String title, String value, IconData icon, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        margin: const EdgeInsets.symmetric(horizontal: 5),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+  Widget _buildStatCard(String title, String value, IconData icon, Color color,
+      bool isWideScreen) {
+    return Container(
+      width: isWideScreen ? 200 : double.infinity, // Adjust width
+      height: isWideScreen ? 140 : 160, // Adjust height
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 6,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(icon, color: color, size: 40),
+          const SizedBox(height: 10),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[600],
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: color, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                  ),
-                ),
-              ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -347,10 +385,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           ),
           const SizedBox(height: 24),
           Padding(
-            padding: const EdgeInsets.only(
-                bottom: 16.0), // Add padding to avoid overflow
+            padding: const EdgeInsets.only(bottom: 16.0),
             child: SizedBox(
-              height: 300, // Ensure this height accommodates the graph
+              height: 300,
               child: LineChart(
                 LineChartData(
                   gridData: FlGridData(

@@ -9,68 +9,176 @@ class EmployeeScreen extends StatefulWidget {
 
 class _EmployeeScreenState extends State<EmployeeScreen> {
   String searchQuery = '';
+  String selectedSort = 'Alphabetical A-Z';
+  String selectedDepartment = 'Department';
+  bool isDepartmentExpanded = false;
+  int currentPage = 1;
+  final int itemsPerPage = 5;
+
+  List<String> departments = [
+    'Department',
+    'IT',
+    'Accounting',
+    'Sales',
+    'Marketing',
+    'Finance',
+    'Design'
+  ];
+
   List<Map<String, dynamic>> employees = [
     {
       'id': '1',
-      'name': 'Danilo Santos',
-      'department': 'SAM',
-      'isActive': true,
-      'email': 'admin@admin.com',
-      'dateHired': '09/02/22',
+      'name': 'Cole Ashbury',
+      'position': 'Software Engineer',
+      'department': 'IT',
+      'phoneNumber': '(728) 521-2584',
+      'email': 'cole.ashbury@example.com'
     },
     {
       'id': '2',
-      'name': 'Xander Ford',
-      'department': 'IT',
-      'isActive': false,
-      'email': 'user@user.com',
-      'dateHired': '09/02/22',
+      'name': 'Joshua Baker',
+      'position': 'Accountant',
+      'department': 'Accounting',
+      'phoneNumber': '(404) 153-5520',
+      'email': 'joshua.baker@example.com'
     },
     {
       'id': '3',
-      'name': 'Jan Hulio Adios',
-      'department': 'SAM',
-      'isActive': true,
-      'email': 'admin@admin.com',
-      'dateHired': '09/02/22',
+      'name': 'Dylan Baylidge',
+      'position': 'Sales Consultant',
+      'department': 'Sales',
+      'phoneNumber': '(404) 192-5945',
+      'email': 'dylan.baylidge@example.com'
     },
     {
       'id': '4',
-      'name': 'Peter Bollies',
-      'department': 'IT',
-      'isActive': false,
-      'email': 'user@user.com',
-      'dateHired': '09/02/22',
+      'name': 'Lisa Bradford',
+      'position': 'Communication Manager',
+      'department': 'Marketing',
+      'phoneNumber': '(320) 923-4811',
+      'email': 'lisa.bradford@example.com'
     },
     {
       'id': '5',
-      'name': 'Geaser Jan Gadingan',
-      'department': 'SAM',
-      'isActive': true,
-      'email': 'admin@admin.com',
-      'dateHired': '09/02/22',
+      'name': 'Paul Brent',
+      'position': 'Financial Supervisor',
+      'department': 'Finance',
+      'phoneNumber': '(404) 875-3439',
+      'email': 'paul.brent@example.com'
     },
     {
       'id': '6',
-      'name': 'Yasher-Arafat Abam',
+      'name': 'Taylor Christensen',
+      'position': 'Product Designer',
+      'department': 'Design',
+      'phoneNumber': '(404) 650-3953',
+      'email': 'taylor.christensen@example.com'
+    },
+    {
+      'id': '7',
+      'name': 'Melanie Crawford',
+      'position': 'Marketing Coordinator',
+      'department': 'Marketing',
+      'phoneNumber': '(320) 039-8474',
+      'email': 'melanie.crawford@example.com'
+    },
+    {
+      'id': '8',
+      'name': 'Ethan Hunter',
+      'position': 'Project Manager',
       'department': 'IT',
-      'isActive': true,
-      'email': 'user@user.com',
-      'dateHired': '09/02/22',
+      'phoneNumber': '(629) 124-2154',
+      'email': 'ethan.hunter@example.com'
+    },
+    {
+      'id': '9',
+      'name': 'Sophia Hill',
+      'position': 'HR Specialist',
+      'department': 'Finance',
+      'phoneNumber': '(742) 653-8954',
+      'email': 'sophia.hill@example.com'
+    },
+    {
+      'id': '10',
+      'name': 'Ryan Wood',
+      'position': 'UX Designer',
+      'department': 'Design',
+      'phoneNumber': '(540) 321-4567',
+      'email': 'ryan.wood@example.com'
+    },
+    {
+      'id': '11',
+      'name': 'Emily Green',
+      'position': 'Digital Marketer',
+      'department': 'Marketing',
+      'phoneNumber': '(628) 475-5698',
+      'email': 'emily.green@example.com'
+    },
+    {
+      'id': '12',
+      'name': 'Jack Black',
+      'position': 'Sales Representative',
+      'department': 'Sales',
+      'phoneNumber': '(820) 329-4852',
+      'email': 'jack.black@example.com'
+    },
+    {
+      'id': '13',
+      'name': 'Olivia White',
+      'position': 'Content Writer',
+      'department': 'Marketing',
+      'phoneNumber': '(732) 541-1258',
+      'email': 'olivia.white@example.com'
+    },
+    {
+      'id': '14',
+      'name': 'James Parker',
+      'position': 'Data Analyst',
+      'department': 'Finance',
+      'phoneNumber': '(504) 852-9632',
+      'email': 'james.parker@example.com'
+    },
+    {
+      'id': '15',
+      'name': 'Grace Turner',
+      'position': 'Front-End Developer',
+      'department': 'Design',
+      'phoneNumber': '(829) 123-4567',
+      'email': 'grace.turner@example.com'
     },
   ];
 
   List<Map<String, dynamic>> get filteredEmployees {
-    if (searchQuery.isEmpty) return employees;
-    return employees.where((employee) {
-      return employee['name']
-              .toLowerCase()
-              .contains(searchQuery.toLowerCase()) ||
-          employee['department']
-              .toLowerCase()
-              .contains(searchQuery.toLowerCase()) ||
-          employee['email'].toLowerCase().contains(searchQuery.toLowerCase());
-    }).toList();
+    List<Map<String, dynamic>> employeesList = employees;
+
+    if (selectedDepartment != 'Department') {
+      employeesList = employeesList
+          .where((employee) => employee['department'] == selectedDepartment)
+          .toList();
+    }
+
+    if (searchQuery.isNotEmpty) {
+      employeesList = employeesList.where((employee) {
+        return employee['name']
+                .toLowerCase()
+                .contains(searchQuery.toLowerCase()) ||
+            employee['department']
+                .toLowerCase()
+                .contains(searchQuery.toLowerCase());
+      }).toList();
+    }
+
+    return employeesList;
+  }
+
+  List<Map<String, dynamic>> get paginatedEmployees {
+    int startIndex = (currentPage - 1) * itemsPerPage;
+    int endIndex = startIndex + itemsPerPage;
+    return filteredEmployees.sublist(
+        startIndex,
+        endIndex > filteredEmployees.length
+            ? filteredEmployees.length
+            : endIndex);
   }
 
   @override
@@ -80,7 +188,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context); // Navigate back to AdminHomeScreen
+            Navigator.pop(context);
           },
         ),
       ),
@@ -123,7 +231,39 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                       Row(
                         children: [
                           Container(
-                            width: 500,
+                            margin: const EdgeInsets.only(right: 16),
+                            child: Row(
+                              children: [
+                                const Text(
+                                  'Sort by:',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                                const SizedBox(width: 8),
+                                DropdownButton<String>(
+                                  value: selectedSort,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectedSort = value!;
+                                      currentPage =
+                                          1; // Reset to the first page
+                                    });
+                                  },
+                                  items: [
+                                    'Alphabetical A-Z',
+                                    'Alphabetical Z-A'
+                                  ].map<DropdownMenuItem<String>>(
+                                      (String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            width: 400,
                             height: 45,
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey[300]!),
@@ -136,6 +276,7 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                                     onChanged: (value) {
                                       setState(() {
                                         searchQuery = value;
+                                        currentPage = 1;
                                       });
                                     },
                                     style: const TextStyle(fontSize: 16),
@@ -162,29 +303,6 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                               ],
                             ),
                           ),
-                          const SizedBox(width: 20),
-                          SizedBox(
-                            height: 45,
-                            width: 160,
-                            child: ElevatedButton.icon(
-                              onPressed: () {},
-                              icon: const Icon(Icons.add, size: 22),
-                              label: const Text(
-                                'Add Employee',
-                                style: TextStyle(fontSize: 14),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF358873),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 0,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                     ],
@@ -206,202 +324,166 @@ class _EmployeeScreenState extends State<EmployeeScreen> {
                         headingRowColor:
                             WidgetStateProperty.all(const Color(0xFF358873)),
                         dataRowHeight: 65,
-                        horizontalMargin: 50,
-                        columnSpacing: 36,
+                        horizontalMargin: 60,
+                        columnSpacing: 20,
                         columns: [
                           DataColumn(
                             label: Container(
-                              width: 100,
+                              width: 120,
                               alignment: Alignment.centerLeft,
                               child: const Text(
                                 'ID',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
+                                style: TextStyle(color: Colors.white),
                               ),
                             ),
                           ),
                           DataColumn(
                             label: Container(
-                              width: 220,
+                              width: 300,
                               alignment: Alignment.centerLeft,
                               child: const Text(
                                 'NAME',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
+                                style: TextStyle(color: Colors.white),
                               ),
                             ),
                           ),
                           DataColumn(
+                            label: PopupMenuButton<String>(
+                              onSelected: (value) {
+                                setState(() {
+                                  selectedDepartment = value;
+                                  isDepartmentExpanded = false;
+                                  currentPage = 1;
+                                });
+                              },
+                              onCanceled: () {
+                                setState(() {
+                                  isDepartmentExpanded = false;
+                                });
+                              },
+                              itemBuilder: (context) {
+                                return departments.map((dept) {
+                                  return PopupMenuItem<String>(
+                                    value: dept,
+                                    child: Text(dept,
+                                        style: TextStyle(
+                                            color: selectedDepartment == dept
+                                                ? Colors.black
+                                                : Colors.grey[700])),
+                                  );
+                                }).toList();
+                              },
+                              child: Row(
+                                children: [
+                                  Text(
+                                    selectedDepartment,
+                                    style: TextStyle(
+                                      color: isDepartmentExpanded
+                                          ? Colors.black
+                                          : Colors.white,
+                                    ),
+                                  ),
+                                  Icon(
+                                    isDepartmentExpanded
+                                        ? Icons.arrow_drop_down
+                                        : Icons.arrow_right,
+                                    color: Colors.white,
+                                  ),
+                                ],
+                              ),
+                              onOpened: () {
+                                setState(() {
+                                  isDepartmentExpanded = true;
+                                });
+                              },
+                            ),
+                          ),
+                          DataColumn(
                             label: Container(
-                              width: 180,
+                              width: 350,
                               alignment: Alignment.centerLeft,
                               child: const Text(
-                                'DEPARTMENT',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
+                                'POSITION',
+                                style: TextStyle(color: Colors.white),
                               ),
                             ),
                           ),
                           DataColumn(
                             label: Container(
-                              width: 140,
-                              alignment: Alignment.centerLeft,
-                              child: const Text(
-                                'STATUS',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Container(
-                              width: 280,
+                              width: 350,
                               alignment: Alignment.centerLeft,
                               child: const Text(
                                 'EMAIL',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Container(
-                              width: 140,
-                              alignment: Alignment.centerLeft,
-                              child: const Text(
-                                'DATE HIRED',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Container(
-                              width: 160,
-                              alignment: Alignment.center,
-                              child: const Text(
-                                'ACTIONS',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
+                                style: TextStyle(color: Colors.white),
                               ),
                             ),
                           ),
                         ],
-                        rows: filteredEmployees.map((employee) {
+                        rows: paginatedEmployees.map((employee) {
                           return DataRow(
                             cells: [
                               DataCell(Container(
-                                width: 100,
+                                width: 80,
                                 alignment: Alignment.centerLeft,
-                                child: Text(
-                                  employee['id'],
-                                  style: const TextStyle(fontSize: 15),
-                                ),
+                                child: Text(employee['id']),
                               )),
                               DataCell(Container(
-                                width: 220,
+                                width: 250,
                                 alignment: Alignment.centerLeft,
-                                child: Text(
-                                  employee['name'],
-                                  style: const TextStyle(fontSize: 15),
-                                ),
+                                child: Text(employee['name']),
                               )),
                               DataCell(Container(
-                                width: 180,
+                                width: 230,
                                 alignment: Alignment.centerLeft,
-                                child: Text(
-                                  employee['department'],
-                                  style: const TextStyle(fontSize: 15),
-                                ),
-                              )),
-                              DataCell(
-                                Container(
-                                  width: 140,
-                                  alignment: Alignment.centerLeft,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 14,
-                                      vertical: 8,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: employee['isActive']
-                                          ? const Color(0xFFE8F5E9)
-                                          : const Color(0xFFFFF3E0),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      employee['isActive']
-                                          ? 'Active'
-                                          : 'On Leave',
-                                      style: TextStyle(
-                                        color: employee['isActive']
-                                            ? const Color(0xFF358873)
-                                            : Colors.orange[700],
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              DataCell(Container(
-                                width: 280,
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  employee['email'],
-                                  style: const TextStyle(fontSize: 15),
-                                ),
+                                child: Text(employee['department']),
                               )),
                               DataCell(Container(
-                                width: 140,
+                                width: 230,
                                 alignment: Alignment.centerLeft,
-                                child: Text(
-                                  employee['dateHired'],
-                                  style: const TextStyle(fontSize: 15),
-                                ),
+                                child: Text(employee['position']),
                               )),
-                              DataCell(
-                                Container(
-                                  width: 160,
-                                  alignment: Alignment.center,
-                                  child: Container(
-                                    width: 35,
-                                    height: 35,
-                                    decoration: BoxDecoration(
-                                      color: Colors.red[50],
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: IconButton(
-                                      padding: EdgeInsets.zero,
-                                      icon: const Icon(Icons.close,
-                                          size: 20, color: Colors.red),
-                                      onPressed: () {
-                                        setState(() {
-                                          employees.remove(employee);
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              DataCell(Container(
+                                width: 230,
+                                alignment: Alignment.centerLeft,
+                                child: Text(employee['email']),
+                              )),
                             ],
                           );
                         }).toList(),
                       ),
                     ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 36),
+                  color: Colors.white,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        onPressed: currentPage > 1
+                            ? () {
+                                setState(() {
+                                  currentPage--;
+                                });
+                              }
+                            : null,
+                        icon: const Icon(Icons.arrow_back),
+                      ),
+                      Text(
+                          'Page $currentPage of ${(filteredEmployees.length / itemsPerPage).ceil()}'),
+                      IconButton(
+                        onPressed: currentPage <
+                                (filteredEmployees.length / itemsPerPage).ceil()
+                            ? () {
+                                setState(() {
+                                  currentPage++;
+                                });
+                              }
+                            : null,
+                        icon: const Icon(Icons.arrow_forward),
+                      ),
+                    ],
                   ),
                 ),
               ],
