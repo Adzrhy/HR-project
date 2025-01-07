@@ -64,8 +64,10 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
   List<Map<String, dynamic>> get paginatedJobs {
     int startIndex = (currentPage - 1) * itemsPerPage;
     int endIndex = startIndex + itemsPerPage;
-    return filteredJobs.sublist(startIndex,
-        endIndex > filteredJobs.length ? filteredJobs.length : endIndex);
+    return filteredJobs.sublist(
+      startIndex,
+      endIndex > filteredJobs.length ? filteredJobs.length : endIndex,
+    );
   }
 
   @override
@@ -183,32 +185,25 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
                             ),
                           ),
                           const SizedBox(width: 20),
-                          SizedBox(
-                            height: 45,
-                            width: 160,
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                // Show the New Job Description form as a dialog
-                                showDialog(
-                                  context: context,
-                                  builder: (context) =>
-                                      const NewJobDescriptionForm(),
-                                );
-                              },
-                              icon: const Icon(Icons.add, size: 20),
-                              label: const Text(
-                                'Add New Job',
-                                style: TextStyle(fontSize: 14),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF358873),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 0,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              // Show the New Job Description form as a dialog
+                              showDialog(
+                                context: context,
+                                builder: (context) =>
+                                    const NewJobDescriptionForm(),
+                              );
+                            },
+                            icon: const Icon(Icons.add, color: Colors.white),
+                            label: const Text(
+                              'Add New Job',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF358873),
+                              minimumSize: const Size(160, 45),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4),
                               ),
                             ),
                           ),
@@ -225,7 +220,7 @@ class _JobListingsScreenState extends State<JobListingsScreen> {
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
-                          headingRowColor: WidgetStateProperty.all(
+                          headingRowColor: MaterialStateProperty.all(
                             const Color(0xFF358873),
                           ),
                           columns: const [

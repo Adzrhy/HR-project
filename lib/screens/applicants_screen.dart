@@ -75,7 +75,7 @@ class _ApplicantsScreenState extends State<ApplicantsScreen> {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Container(
-            constraints: const BoxConstraints(maxWidth: 900),
+            constraints: const BoxConstraints(maxWidth: 1200, minHeight: 800),
             padding: const EdgeInsets.all(24.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
