@@ -1,6 +1,6 @@
+import 'package:dashboard/modal/profile_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'profile_admin_screen.dart';
 import 'forms_screen.dart';
 import 'job_list_screen.dart';
 import 'job_listings_screen.dart';
@@ -25,6 +25,13 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     setState(() {
       isDropdownOpen = !isDropdownOpen;
     });
+  }
+
+  void _showProfileModal() {
+    showDialog(
+      context: context,
+      builder: (context) => const ProfileModal(),
+    );
   }
 
   @override
@@ -273,13 +280,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                               ListTile(
                                 title: const Text('Profile'),
                                 onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const ProfileAdminScreen(),
-                                    ),
-                                  );
+                                  _showProfileModal();
                                   setState(() {
                                     isDropdownOpen = false;
                                   });

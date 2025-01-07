@@ -118,7 +118,7 @@ class _SchedulingModalState extends State<SchedulingModal> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 20),
+                const SizedBox(width: 80),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
